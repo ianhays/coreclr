@@ -8,14 +8,11 @@ using System.Runtime.InteropServices;
 internal static partial class Interop
 {
     internal static partial class Sys
-    {
-        internal enum LockType : short
-        {
-            F_WRLCK = 1,    // exclusive or write lock
-            F_UNLCK = 2     // unlock
-        }
-        
+    {     
         [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_LockFileRegion", SetLastError=true)]
-        internal static extern int LockFileRegion(SafeHandle fd, long offset, long length, LockType lockType);
+        internal static extern int LockFileRegion(SafeHandle fd, long offset, long length);
+		
+		[DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_UnlockFileRegion", SetLastError=true)]
+        internal static extern int UnlockFileRegion(SafeHandle fd, long offset, long length);
     }
 }
