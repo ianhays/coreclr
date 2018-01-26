@@ -23,9 +23,14 @@ namespace System
         /// will be aligned to all primitives.</remarks>
         /// <remarks>If <paramref name="source"/> doesn't point to an address that follows the os-specific alignment rules of <typeparamref name="TFrom"/>, then 
         /// this will always return false</remarks>
+        /// <remarks>Does not require the memory being spanned over to be fixed.</remarks>
         /// <returns>True if successful; else False</returns>
         public static bool TryCast<TFrom, TTo>(this ReadOnlySpan<TFrom> source, out ReadOnlySpan<TTo> output) where TFrom : struct where TTo : struct
         {
+            if (RuntimeHelpers.IsReferenceOrContainsReferences<TFrom>())
+                ThrowHelper.ThrowInvalidTypeWithPointersNotSupported(typeof(TFrom));
+            if (RuntimeHelpers.IsReferenceOrContainsReferences<TTo>())
+                ThrowHelper.ThrowInvalidTypeWithPointersNotSupported(typeof(TTo));
 #if Intel
             output = MemoryMarshal.Cast<TFrom, TTo>(source);
             return true;
@@ -54,6 +59,7 @@ namespace System
                         return true;
                     }
                 }
+                output = null;
                 return false;
             }
 #endif
@@ -69,13 +75,14 @@ namespace System
         /// will be aligned to all primitives.</remarks>
         /// <remarks>If <paramref name="source"/> doesn't point to an address that follows the os-specific alignment rules of <typeparamref name="TFrom"/>, then 
         /// this will always return false</remarks>
+        /// <remarks>Does not require the memory being spanned over to be fixed.</remarks>
         /// <returns>True if successful; else False</returns>
         public static bool TryCast<TFrom, TTo>(this Span<TFrom> source, out Span<TTo> output) where TFrom : struct where TTo : struct
         {
             if (RuntimeHelpers.IsReferenceOrContainsReferences<TFrom>())
-                ThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(typeof(TFrom));
+                ThrowHelper.ThrowInvalidTypeWithPointersNotSupported(typeof(TFrom));
             if (RuntimeHelpers.IsReferenceOrContainsReferences<TTo>())
-                ThrowHelper.ThrowArgumentException_InvalidTypeWithPointersNotSupported(typeof(TTo));
+                ThrowHelper.ThrowInvalidTypeWithPointersNotSupported(typeof(TTo));
 
 #if Intel
             output = MemoryMarshal.Cast<TFrom, TTo>(source);
@@ -105,6 +112,7 @@ namespace System
                         return true;
                     }
                 }
+                output = null;
                 return false;
             }
 #endif
