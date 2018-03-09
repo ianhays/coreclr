@@ -175,10 +175,11 @@ build_coreclr()
             __versionSourceLine="static char sccsid[] __attribute__((used)) = \"@(#)No version information produced\";"
             echo $__versionSourceLine > $__versionSourceFile
         fi
-
-        echo "Restoring the OptimizationData package"
-        "$__ProjectRoot/run.sh" sync -optdata
-
+        if [[ $__SkipRestoreOptData == 0 ]]; then
+            echo "Restoring the OptimizationData package"
+            "$__ProjectRoot/run.sh" sync -optdata
+        fi
+            
 		pushd "$__IntermediatesDir"
         # Regenerate the CMake solution
         __ExtraCmakeArgs="-DCLR_CMAKE_TARGET_OS=$__BuildOS -DCLR_CMAKE_PACKAGES_DIR=$__PackagesDir -DCLR_CMAKE_PGO_INSTRUMENT=$__PgoInstrument"
@@ -240,9 +241,12 @@ isMSBuildOnNETCoreSupported()
                 "fedora.23-x64")
                     __isMSBuildOnNETCoreSupported=1
                     ;;
-                "fedora.24-x64")
+                "fedora.27-x64")
                     __isMSBuildOnNETCoreSupported=1
                     ;;
+		"Fedora.27-x64")
+		    __isMSBuildOnNETCoreSupported=1
+		    ;;
                 "opensuse.13.2-x64")
                     __isMSBuildOnNETCoreSupported=1
                     ;;
@@ -478,6 +482,7 @@ __NuGetPath="$__PackagesDir/NuGet.exe"
 __DistroRid=""
 __cmakeargs=""
 __SkipGenerateVersion=0
+__SkipRestoreOptData=0
 
 while :; do
     if [ $# -le 0 ]; then
@@ -560,6 +565,11 @@ while :; do
             __ClangMinorVersion=9
             ;;
 
+        clang4.0)
+            __ClangMajorVersion=4
+            __ClangMinorVersion=0
+            ;;
+
         ninja)
             __UseNinja=1
             ;;
@@ -597,6 +607,10 @@ while :; do
             __SkipGenerateVersion=1
             ;;
 
+        -skiprestoreoptdata)
+            __SkipRestoreOptData=1
+            ;;
+            
         includetests)
             ;;
 

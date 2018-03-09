@@ -1732,6 +1732,56 @@ DWORD getextcpuid(DWORD arg1, DWORD arg2, unsigned char result[16])
 
 #pragma warning(pop)
 
+<<<<<<< HEAD
+=======
+#else // !FEATURE_PAL
+
+extern "C" DWORD __stdcall getcpuid(DWORD arg, unsigned char result[16])
+{
+    DWORD eax;
+    __asm("  xor %%ecx, %%ecx\n" \
+            "  cpuid\n" \
+            "  mov %%eax, 0(%[result])\n" \
+            "  mov %%ebx, 4(%[result])\n" \
+            "  mov %%ecx, 8(%[result])\n" \
+            "  mov %%edx, 12(%[result])\n" \
+        : "=a"(eax) /*output in eax*/\
+        : "a"(arg), [result]"r"(result) /*inputs - arg in eax, result in any register*/\
+        : "ebx", "ecx", "edx", "memory" /* registers that are clobbered, *result is clobbered */
+        );
+    return eax;
+}
+
+extern "C" DWORD __stdcall getextcpuid(DWORD arg1, DWORD arg2, unsigned char result[16])
+{
+    DWORD eax;
+    DWORD ecx;
+    __asm("  cpuid\n" \
+            "  mov %%eax, 0(%[result])\n" \
+            "  mov %%ebx, 4(%[result])\n" \
+            "  mov %%ecx, 8(%[result])\n" \
+            "  mov %%edx, 12(%[result])\n" \
+        : "=a"(eax), "=c"(ecx) /*output in eax, ecx is rewritten*/\
+        : "c"(arg1), "a"(arg2), [result]"r"(result) /*inputs - arg1 in ecx, arg2 in eax, result in any register*/\
+        : "ebx", "edx", "memory" /* registers that are clobbered, *result is clobbered */
+        );
+    return eax;
+}
+
+extern "C" DWORD __stdcall xmmYmmStateSupport()
+{
+    DWORD eax;
+    __asm("  xgetbv\n" \
+        : "=a"(eax) /*output in eax*/\
+        : "c"(0) /*inputs - 0 in ecx*/\
+        : "edx" /* registers that are clobbered*/
+        );
+    // check OS has enabled both XMM and YMM state support
+    return ((eax & 0x06) == 0x06) ? 1 : 0;
+}
+
+#endif // !FEATURE_PAL
+>>>>>>> 4f8be95166... Linux/x86: Fix clang 4.0 build (#11610)
 
 // This function returns the number of logical processors on a given physical chip.  If it cannot
 // determine the number of logical cpus, or the machine is not populated uniformly with the same

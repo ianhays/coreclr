@@ -73,7 +73,8 @@ display_error_message()
 
 # Initialize Linux Distribution name and .NET CLI package name.
 
-initDistroName $OS
+# initDistroName $OS
+export __DistroRid="fedora.24-x64"
 
 # Work around mac build issue 
 if [ "$OS" == "OSX" ]; then
