@@ -20,6 +20,7 @@ Abstract:
 
 #ifndef _PAL_CONTEXT_H_
 #define _PAL_CONTEXT_H_
+#endif
 
 #ifdef __cplusplus
 extern "C"
